@@ -10,7 +10,7 @@ QString SkyrimBSAInvalidation::invalidationBSAName() const
   return "Skyrim - Invalidation.bsa";
 }
 
-unsigned long SkyrimBSAInvalidation::bsaVersion() const
+uint32_t SkyrimBSAInvalidation::bsaVersion() const
 {
   return 0x68;
 }
