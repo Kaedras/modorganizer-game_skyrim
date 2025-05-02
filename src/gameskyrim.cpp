@@ -19,11 +19,8 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QFileInfo>
-
+#include <QVersionNumber>
 #include <QtDebug>
-
-#include <Windows.h>
-#include <winver.h>
 
 #include <exception>
 #include <memory>
@@ -198,46 +195,16 @@ QStringList GameSkyrim::DLCPlugins() const
           "HighResTexturePack03.esp"};
 }
 
-namespace
-{
-// Note: This is ripped off from shared/util. And in an upcoming move, the fomod
-// installer requires something similar. I suspect I should abstract this out
-// into gamebryo (or lower level)
-
-VS_FIXEDFILEINFO GetFileVersion(const std::wstring& fileName)
-{
-  DWORD handle = 0UL;
-  DWORD size   = ::GetFileVersionInfoSizeW(fileName.c_str(), &handle);
-  if (size == 0) {
-    throw std::runtime_error("failed to determine file version info size");
-  }
-
-  std::vector<char> buffer(size);
-  handle = 0UL;
-  if (!::GetFileVersionInfoW(fileName.c_str(), handle, size, buffer.data())) {
-    throw std::runtime_error("failed to determine file version info");
-  }
-
-  void* versionInfoPtr   = nullptr;
-  UINT versionInfoLength = 0;
-  if (!::VerQueryValue(buffer.data(), L"\\", &versionInfoPtr, &versionInfoLength)) {
-    throw std::runtime_error("failed to determine file version");
-  }
-
-  return *static_cast<VS_FIXEDFILEINFO*>(versionInfoPtr);
-}
-
-}  // namespace
-
 IPluginGame::LoadOrderMechanism GameSkyrim::loadOrderMechanism() const
 {
   try {
-    std::wstring fileName =
-        gameDirectory().absoluteFilePath(binaryName()).toStdWString().c_str();
-    VS_FIXEDFILEINFO versionInfo = ::GetFileVersion(fileName);
-    if ((versionInfo.dwFileVersionMS > 0x10004) ||  // version >= 1.5.x?
-        ((versionInfo.dwFileVersionMS == 0x10004) &&
-         (versionInfo.dwFileVersionLS >= 0x1A0000))) {  // version >= ?.4.26
+    QString versionString = getFileVersion(gameDirectory().absoluteFilePath(binaryName()));
+    QVersionNumber version = QVersionNumber::fromString(versionString);
+
+    static const auto v1_5 = QVersionNumber(1,5);
+
+    // version >= 1.5.x || version >= x.4.26
+    if (version >= v1_5 || (version.minorVersion() >= 4 && version.microVersion() >= 26)) {
       return LoadOrderMechanism::PluginsTxt;
     }
   } catch (const std::exception& e) {

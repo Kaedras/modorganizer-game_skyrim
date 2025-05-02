@@ -3,7 +3,11 @@
 
 #include "gamebryosavegame.h"
 
+#ifdef __unix__
+#include <linux/compatibility.h>
+#else
 #include <Windows.h>
+#endif
 
 namespace MOBase
 {
