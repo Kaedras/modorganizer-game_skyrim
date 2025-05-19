@@ -206,13 +206,15 @@ QStringList GameSkyrim::DLCPlugins() const
 IPluginGame::LoadOrderMechanism GameSkyrim::loadOrderMechanism() const
 {
   try {
-    QString versionString = getFileVersion(gameDirectory().absoluteFilePath(binaryName()));
+    QString versionString =
+        getFileVersion(gameDirectory().absoluteFilePath(binaryName()));
     QVersionNumber version = QVersionNumber::fromString(versionString);
 
-    static const auto v1_5 = QVersionNumber(1,5);
+    static const auto v1_5 = QVersionNumber(1, 5);
 
     // version >= 1.5.x || version >= x.4.26
-    if (version >= v1_5 || (version.minorVersion() >= 4 && version.microVersion() >= 26)) {
+    if (version >= v1_5 ||
+        (version.minorVersion() >= 4 && version.microVersion() >= 26)) {
       return LoadOrderMechanism::PluginsTxt;
     }
   } catch (const std::exception& e) {
