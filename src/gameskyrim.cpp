@@ -28,6 +28,14 @@
 #include <string>
 #include <vector>
 
+#ifdef __unix__
+// use AppData folder inside the wine prefix
+static const QString appID = QStringLiteral("72850");
+#define LOCAL_APP_FOLDER localAppFolder(appID)
+#else
+#define LOCAL_APP_FOLDER localAppFolder()
+#endif
+
 using namespace MOBase;
 
 GameSkyrim::GameSkyrim() {}
@@ -115,7 +123,7 @@ QList<PluginSetting> GameSkyrim::settings() const
 void GameSkyrim::initializeProfile(const QDir& path, ProfileSettings settings) const
 {
   if (settings.testFlag(IPluginGame::MODS)) {
-    copyToProfile(localAppFolder() + "/Skyrim", path, "plugins.txt");
+    copyToProfile(LOCAL_APP_FOLDER + "/Skyrim", path, "plugins.txt");
   }
 
   if (settings.testFlag(IPluginGame::CONFIGURATION)) {
