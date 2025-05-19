@@ -50,6 +50,11 @@ protected:
   virtual QString savegameSEExtension() const override;
   virtual std::shared_ptr<const GamebryoSaveGame>
   makeSaveGame(QString filepath) const override;
+
+#ifdef __unix__
+  // returns the LocalAppData path inside the wine prefix
+  static QString localAppFolder();
+#endif
 };
 
 #endif  // GAMESKYRIM_H
